@@ -14,7 +14,7 @@ While there are some more "heavy-weight" boards like the [Arduino Due](https://s
 
 We selected the RP2350 microcontroller as the main driver for the ŌkinaPico. However, in order to not reinvent the wheel, we designed the ŌkinaPico as an expansion board for the cheap and readily available [Raspberry Pi Pico 2](https://www.raspberrypi.com/products/raspberry-pi-pico-2/) board. As the hardware footprint is backwards compatible, the ŌkinaPico also supports the original RP2040-based [Raspberry Pi Pico 1](https://www.raspberrypi.com/products/raspberry-pi-pico/). 
 
-==The main use case of the ŌkinaPico is to develop software (e.g. hardware drivers, or Arduino libraries) for other hardware. For this reason, the ŌkinaPico deliberately sacrifices compactness in favour of quality-of-life enhancements.==
+**The main use case of the ŌkinaPico is to develop software (e.g. hardware drivers, or Arduino libraries) for other hardware. For this reason, the ŌkinaPico deliberately sacrifices compactness in favour of various quality-of-life enhancements.**
 
 <img src="images/okinapico.png" width="1000" target="_blank" />
 
@@ -85,16 +85,19 @@ To setup your Raspberry Pi Pico (2) for Arduino development, follow the excellen
 
 The ŌkinaPico can also be used with [arduino-cli](https://github.com/arduino/arduino-cli) or [PlatformIO](https://platformio.org/). We refer to their documentation for more details (simply look for instructions for the Raspberry Pi Pico (2)).
 
-### Buttons
+### Example: Buttons
 
 The button pins are "LOW" when the button is pressed, and "HIGH" otherwise. Make sure to activate the internal pull-ups for these pins!
+
+<details>
+<summary>Example</summary>
 
 ```C++
 #define BUTTON_1 15
 #define BUTTON_2 20
 #define BUTTON_3 21
 #define BUTTON_4 22
-
+	
 void setup() {
   Serial.begin(9600);
   pinMode(BUTTON_1, INPUT_PULLUP); 
@@ -102,7 +105,7 @@ void setup() {
   pinMode(BUTTON_3, INPUT_PULLUP); 
   pinMode(BUTTON_4, INPUT_PULLUP); 
 }
-
+	
 void loop() {
   if(digitalRead(BUTTON_1) == LOW){ Serial.println("button 1"); }
   if(digitalRead(BUTTON_2) == LOW){ Serial.println("button 2"); }
@@ -111,16 +114,21 @@ void loop() {
   delay(100);
 }
 ```
-### LEDs
+</details>
+
+### Example: LEDs
 
 Set the corresponding LED pin "HIGH" to turn on the LED.
 
+<details>
+<summary>Example</summary>
+	
 ```C++
 #define LED_1 11
 #define LED_2 12
 #define LED_3 13
 #define LED_4 14
-
+	
 void setup() {
   Serial.begin(9600);
   pinMode(LED_1, OUTPUT); 
@@ -132,32 +140,37 @@ void setup() {
   digitalWrite(LED_3, HIGH);  
   digitalWrite(LED_4, HIGH);  
 }
-
+	
 void loop() {
   delay(1000);
 }
 ```
+</details>
 
-### Display
+
+### Example: Display
 
 Requires the "[Adafruit ST7735 Library](https://github.com/adafruit/Adafruit-ST7735-Library)". Can be installed via Arduino IDE, arduino-cli or PlatformIO. 
 
-```
+<details>
+<summary>Example</summary>
+	
+```C++
 #include <Adafruit_GFX.h>
 #include <Adafruit_ST7735.h> 
 #include <SPI.h>
-
+	
 #define TFT_CS     17
 #define TFT_RST    9 
 #define TFT_DC     10
 Adafruit_ST7735 tft = Adafruit_ST7735(TFT_CS, TFT_DC, TFT_RST);
-
+	
 void setup() {
   tft.setSPISpeed(32000000);
   tft.initR(INITR_BLACKTAB); 
   tft.fillScreen(ST77XX_BLACK);
 }
-
+	
 void loop() {
   tft.setTextSize(2);
   tft.setCursor(0, 0);
@@ -167,25 +180,99 @@ void loop() {
   
   delay(1000);
 }
-
 ```
+</details>
 
-### RTC
+
+### Example: RTC
 
 Requires the "[RTC\_NXP\_Arduino](https://github.com/teddokano/RTC_NXP_Arduino)" library. Can be installed via Arduino IDE, arduino-cli or PlatformIO. 
 
+<details>
+<summary>Example</summary>
+	
 ```C++
-
 #include <PCF2131_I2C.h>
 #include <time.h>
-
+	
 PCF2131_I2C rtc;
-
+	
 void setup() {
   Serial.begin(9600);
   Wire.begin();
  
   set_time();
+}
+	
+void loop() {
+  time_t current_time = rtc.time(NULL);
+  Serial.print("time : ");
+  Serial.print(current_time);
+  Serial.print(", ");
+  Serial.println(ctime(&current_time));
+	
+  delay(1000);
+}
+	
+	
+void set_time()
+{
+    char s_month[5];
+    int year;
+    tm t{};
+    static constexpr char month_names[37] = "JanFebMarAprMayJunJulAugSepOctNovDec";
+	
+    // extract time values from strings
+    sscanf(__DATE__, "%s %d %d", s_month, &t.tm_mday, &year);
+    sscanf(__TIME__, "%2d %*c %2d %*c %2d", &t.tm_hour, &t.tm_min, &t.tm_sec);
+	
+    // find where is s_month in month_names. Deduce month value.
+    t.tm_mon = (strstr(month_names, s_month) - month_names) / 3;
+    t.tm_year = year - 1900;
+	
+    // add 30 seconds to compensate for compile/upload time
+    time_t timestamp = mktime(&t);
+    timestamp = timestamp + 30;
+    localtime_r(&timestamp, &t);
+	
+    rtc.set(&t);
+}
+```
+</details>
+
+
+<details>
+<summary>Example 2: battery backup</summary>
+
+```C++
+#include <PCF2131_I2C.h>
+#include <time.h>
+
+
+class PCF2131 : public PCF2131_I2C
+{
+public:
+  void enable_battery_failover();
+  void clear_stop_flag();
+};
+
+PCF2131 rtc;
+
+void setup() {
+
+  Serial.begin(9600);
+
+  Wire.begin();
+  
+  if (rtc.oscillator_stop()) {
+    Serial.println("==== oscillator_stop detected :( ====");
+    rtc.clear_stop_flag();
+    set_time();
+  } else {
+    Serial.println("---- RTC has beeing kept running! :) ----");
+  }
+
+  rtc.enable_battery_failover();
 }
 
 void loop() {
@@ -196,6 +283,17 @@ void loop() {
   Serial.println(ctime(&current_time));
 
   delay(1000);
+}
+
+
+void PCF2131::enable_battery_failover()
+{
+  bit_op8(0x02, 0b00011111, 0b00000000);
+}
+
+void PCF2131::clear_stop_flag()
+{
+  bit_op8(0x07, 0b01111111, 0b00000000);
 }
 
 
@@ -222,31 +320,37 @@ void set_time()
     rtc.set(&t);
 }
 ```
-### Buzzer 
+</details>
+
+### Example: Buzzer 
 
 See [this example](https://docs.arduino.cc/built-in-examples/digital/toneMelody/) for a complete list of frequencies. 
 
+<details>
+<summary>Example</summary>
+
 ```C++
 #define BUZZER 8
-
+	
 uint8_t freq_index = 0;
 uint8_t freq_count = 4;
 int freqs[4] = {247, 262, 294, 330};
-
-
+	
+	
 void setup() {
   Serial.begin(9600);
   pinMode(BUZZER, OUTPUT); 
 }
-
+	
 void loop() {
-
+	
   tone(BUZZER, freqs[freq_index], 500);
   delay(500);
-
+	
   if(++freq_index == freq_count){freq_index = 0;}
 }
 ```
+</details>
 
 
 ## Future Work
