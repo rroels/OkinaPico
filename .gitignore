@@ -1,0 +1,9 @@
+
+*-backups
+fp-info-cache
+*~
+.DS_Store
+*.lck
+\#auto_saved_files\#
+_autosave-*
+.idea/
