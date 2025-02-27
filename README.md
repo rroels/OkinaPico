@@ -4,8 +4,6 @@
 > The information and material (code, designs, files, ...) are provided "AS IS". We make no representation or warranty of any kind, express or implied, regarding the accuracy, adequacy, validity, reliability, availability, or completeness of any information or material. Use this at your own risk.
 
 
-## Introduction
-
 The ŌkinaPico is an expansion board for the Raspberry Pi Pico and Pico 2. It was created to help deal with some of the frustrations that we encounter frequently during software development for embedded systems (e.g. Arduino). 
 
 While developing software for embedded systems, we quickly ran into some shortcomings of existing development boards, such as cripling hardware limitation or a lack of usability in general. 
@@ -18,9 +16,9 @@ We selected the RP2350 microcontroller as the main driver for the ŌkinaPico. Ho
 
 <img src="images/okinapico.png" width="1000" target="_blank" />
 
-## Features
+# Features
 
-### Quality-of-Life Enhancements
+## Quality-of-Life Enhancements
 
 * DIP switches for toggling peripherals
     * disable peripherals at the hardware level, in order to reuse the associate microcontroller pins elsewhere 
@@ -31,7 +29,7 @@ We selected the RP2350 microcontroller as the main driver for the ŌkinaPico. Ho
 * Choice of male and female connectors
 	*  make it easier to connect external modules
 
-### Extra On-Board Peripherals
+## Extra On-Board Peripherals
 
 * 🖥️ Display
     * 1.77 inch SPI TFT Display (128x160 pixels)
@@ -51,16 +49,16 @@ We selected the RP2350 microcontroller as the main driver for the ŌkinaPico. Ho
     * 4 user-programmable LEDs
     * 1 x red, 1 x blue, 1 x green, 1 x white 
     
-### Software Support
+## Software Support
 
 * As it's essentially a Rasperry Pi Pico (2) with extra peripherals, you can make use of the plethora of existing guide, tutorials and examples for the Pico (2) 
 * Runs Arduino, with excellent support for the Pico's hardware features 
 	* [https://github.com/earlephilhower/arduino-pico](https://github.com/earlephilhower/arduino-pico) 
 
 
-## Hardware Revisions
+# Hardware Revisions
 
-### Rev. 1.1. (November 2024)
+## Rev. 1.1. (November 2024)
 
 * added potentiometer for adjusting display backlight brightness
 * LEDs now turn on by sourcing current, instead of sinking current
@@ -69,15 +67,15 @@ We selected the RP2350 microcontroller as the main driver for the ŌkinaPico. Ho
 * aesthetic changes (fonts, layout, pcb art, ...)
 * minor hardware optimisations 
 
-### Rev. 1.0. (September 2024)
+## Rev. 1.0. (September 2024)
 
 * initial release
 
-## DIY Assembly Guide
+# DIY Assembly Guide
 
-## Code Examples
+# Code Examples
 
-### Setup
+## Setup
 
 To setup your Raspberry Pi Pico (2) for Arduino development, follow the excellent instructions here:
 
@@ -85,7 +83,7 @@ To setup your Raspberry Pi Pico (2) for Arduino development, follow the excellen
 
 The ŌkinaPico can also be used with [arduino-cli](https://github.com/arduino/arduino-cli) or [PlatformIO](https://platformio.org/). We refer to their documentation for more details (simply look for instructions for the Raspberry Pi Pico (2)).
 
-### Example: Buttons
+## Example: Buttons
 
 The button pins are "LOW" when the button is pressed, and "HIGH" otherwise. Make sure to activate the internal pull-ups for these pins!
 
@@ -116,7 +114,7 @@ void loop() {
 ```
 </details>
 
-### Example: LEDs
+## Example: LEDs
 
 Set the corresponding LED pin "HIGH" to turn on the LED.
 
@@ -148,7 +146,7 @@ void loop() {
 </details>
 
 
-### Example: Display
+## Example: Display
 
 Requires the "[Adafruit ST7735 Library](https://github.com/adafruit/Adafruit-ST7735-Library)". Can be installed via Arduino IDE, arduino-cli or PlatformIO. 
 
@@ -184,7 +182,7 @@ void loop() {
 </details>
 
 
-### Example: RTC
+## Example: RTC
 
 Requires the "[RTC\_NXP\_Arduino](https://github.com/teddokano/RTC_NXP_Arduino)" library. Can be installed via Arduino IDE, arduino-cli or PlatformIO. 
 
@@ -322,7 +320,7 @@ void set_time()
 ```
 </details>
 
-### Example: Buzzer 
+## Example: Buzzer 
 
 See [this example](https://docs.arduino.cc/built-in-examples/digital/toneMelody/) for a complete list of frequencies. 
 
@@ -353,12 +351,12 @@ void loop() {
 </details>
 
 
-## Future Work
+# Future Work
 
 * Dedicated Power Regulator
 	* Currently, power is converted to 3.3V by the Pico, with some limitations. It might be useful to have a voltage regulator outside of the Pico, in order to provide a cleaner and higher current supply of power.	
 
-## FAQ
+# FAQ
 
 
 * What does ŌkinaPico mean?
